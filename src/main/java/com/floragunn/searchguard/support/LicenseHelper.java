@@ -99,32 +99,36 @@ public class LicenseHelper {
                 throw new PGPException("license signature key mismatch");
             }
 
-            sig.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
-
-            final ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
-            final InputStream sigIn = new ByteArrayInputStream(bout.toByteArray());
-            int lookAhead = readInputLine(lineOut, sigIn);
-
-            processLine(sig, lineOut.toByteArray());
-
-            if (lookAhead != -1) {
-                do {
-                    lookAhead = readInputLine(lineOut, lookAhead, sigIn);
-
-                    sig.update((byte) '\r');
-                    sig.update((byte) '\n');
-
-                    processLine(sig, lineOut.toByteArray());
-                } while (lookAhead != -1);
-            }
-
-            if (!sig.verify()) {
-                throw new PGPException("Invalid license signature");
-            }
+            verifySignature(bout, sig, publicKey);
 
             return bout.toString();
         } catch (final Exception e) {
             throw new PGPException(e.toString(), e);
+        }
+    }
+
+    private static void verifySignature(ByteArrayOutputStream bout, PGPSignature sig, PGPPublicKey publicKey) throws PGPException, IOException, SignatureException {
+        sig.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
+
+        final ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
+        final InputStream sigIn = new ByteArrayInputStream(bout.toByteArray());
+        int lookAhead = readInputLine(lineOut, sigIn);
+
+        processLine(sig, lineOut.toByteArray());
+
+        if (lookAhead != -1) {
+            do {
+                lookAhead = readInputLine(lineOut, lookAhead, sigIn);
+
+                sig.update((byte) '\r');
+                sig.update((byte) '\n');
+
+                processLine(sig, lineOut.toByteArray());
+            } while (lookAhead != -1);
+        }
+
+        if (!sig.verify()) {
+            throw new PGPException("Invalid license signature");
         }
     }
 
