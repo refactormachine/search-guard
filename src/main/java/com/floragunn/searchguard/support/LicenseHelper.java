@@ -79,7 +79,7 @@ public class LicenseHelper {
             //
             // https://github.com/bcgit/bc-java/blob/master/pg/src/test/java/org/bouncycastle/openpgp/test/PGPClearSignedSignatureTest.java
 
-            final ByteArrayOutputStream bout = readClearText(in);
+            final ByteArrayOutputStream plainLicenseJson = readClearText(in);
 
             final KeyFingerPrintCalculator c = new BcKeyFingerprintCalculator();
 
@@ -99,19 +99,27 @@ public class LicenseHelper {
                 throw new PGPException("license signature key mismatch");
             }
 
-            verifySignature(bout, sig, publicKey);
+            verifySignature(sig, publicKey, plainLicenseJson.toByteArray());
 
-            return bout.toString();
+            return plainLicenseJson.toString();
         } catch (final Exception e) {
             throw new PGPException(e.toString(), e);
         }
     }
 
-    private static void verifySignature(ByteArrayOutputStream bout, PGPSignature sig, PGPPublicKey publicKey) throws PGPException, IOException, SignatureException {
+    private static void verifySignature(PGPSignature sig, PGPPublicKey publicKey, byte[] data) throws PGPException, IOException, SignatureException {
+        readSignature(sig, publicKey, data);
+
+        if (!sig.verify()) {
+            throw new PGPException("Invalid license signature");
+        }
+    }
+
+    private static void readSignature(PGPSignature sig, PGPPublicKey publicKey, byte[] data) throws PGPException, IOException, SignatureException {
         sig.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
 
         final ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
-        final InputStream sigIn = new ByteArrayInputStream(bout.toByteArray());
+        final InputStream sigIn = new ByteArrayInputStream(data);
         int lookAhead = readInputLine(lineOut, sigIn);
 
         processLine(sig, lineOut.toByteArray());
@@ -123,10 +131,6 @@ public class LicenseHelper {
             sig.update((byte) '\n');
 
             processLine(sig, lineOut.toByteArray());
-        }
-
-        if (!sig.verify()) {
-            throw new PGPException("Invalid license signature");
         }
     }
 
