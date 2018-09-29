@@ -74,10 +74,12 @@ public class LicenseHelper {
 
             final ArmoredInputStream in = new ArmoredInputStream(new ByteArrayInputStream(armoredPgp));
 
+            // Code copied from
+            // https://github.com/bcgit/bc-java/blob/master/pg/src/test/java/org/bouncycastle/openpgp/test/PGPClearSignedSignatureTest.java
+
             //
             // read the input, making sure we ignore the last newline.
             //
-            // https://github.com/bcgit/bc-java/blob/master/pg/src/test/java/org/bouncycastle/openpgp/test/PGPClearSignedSignatureTest.java
 
             final ByteArrayOutputStream plainLicenseJson = readClearText(in);
 
