@@ -66,11 +66,9 @@ public class LicenseHelper {
      * @throws PGPException if validation fails
      */
     public static String validateLicense(String licenseText) throws PGPException {
-        
-    	licenseText = licenseText.trim().replaceAll("\\r|\\n", "");
-        licenseText = licenseText.replace("---- SCHNIPP (Armored PGP signed JSON as base64) ----","");
-        licenseText = licenseText.replace("---- SCHNAPP ----","");
-        
+
+        licenseText = removeNewLinesAndSCHNAPPHeaders(licenseText);
+
         try {
             final byte[] armoredPgp = BaseEncoding.base64().decode(licenseText);
 
@@ -133,6 +131,13 @@ public class LicenseHelper {
         } catch (final Exception e) {
             throw new PGPException(e.toString(), e);
         }
+    }
+
+    private static String removeNewLinesAndSCHNAPPHeaders(String licenseText) {
+        licenseText = licenseText.trim().replaceAll("\\r|\\n", "");
+        licenseText = licenseText.replace("---- SCHNIPP (Armored PGP signed JSON as base64) ----", "");
+        licenseText = licenseText.replace("---- SCHNAPP ----", "");
+        return licenseText;
     }
 
     private static int readInputLine(final ByteArrayOutputStream bOut, final InputStream fIn) throws IOException {
