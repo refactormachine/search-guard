@@ -79,12 +79,7 @@ public class LicenseHelper {
             //
             // https://github.com/bcgit/bc-java/blob/master/pg/src/test/java/org/bouncycastle/openpgp/test/PGPClearSignedSignatureTest.java
 
-            final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            int ch;
-
-            while ((ch = in.read()) >= 0 && in.isClearText()) {
-                bout.write((byte) ch);
-            }
+            final ByteArrayOutputStream bout = readClearText(in);
 
             final KeyFingerPrintCalculator c = new BcKeyFingerprintCalculator();
 
@@ -131,6 +126,16 @@ public class LicenseHelper {
         } catch (final Exception e) {
             throw new PGPException(e.toString(), e);
         }
+    }
+
+    private static ByteArrayOutputStream readClearText(ArmoredInputStream in) throws IOException {
+        final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        int ch;
+
+        while ((ch = in.read()) >= 0 && in.isClearText()) {
+            bout.write((byte) ch);
+        }
+        return bout;
     }
 
     private static String removeNewLinesAndSCHNAPPHeaders(String licenseText) {
