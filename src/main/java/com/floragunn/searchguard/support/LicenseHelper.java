@@ -88,14 +88,14 @@ public class LicenseHelper {
             final PGPPublicKeyRingCollection pgpRings = new PGPPublicKeyRingCollection(new ArmoredInputStream(
                     LicenseHelper.class.getResourceAsStream("/KEYS")), c);
 
-            if (sigL == null || pgpRings == null || sigL.size() == 0 || pgpRings.size() == 0) {
+            if (sigL == null || sigL.size() == 0 || pgpRings.size() == 0) {
                 throw new PGPException("Cannot find license signature");
             }
 
             final PGPSignature sig = sigL.get(0);
             final PGPPublicKey publicKey = pgpRings.getPublicKey(sig.getKeyID());
 
-            if (publicKey == null || sig == null) {
+            if (publicKey == null) {
                 throw new PGPException("license signature key mismatch");
             }
 
