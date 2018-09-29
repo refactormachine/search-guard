@@ -67,10 +67,10 @@ public class LicenseHelper {
      */
     public static String validateLicense(String licenseText) throws PGPException {
 
-        licenseText = removeNewLinesAndSCHNAPPHeaders(licenseText);
+        final String cleanLicenseText = removeNewLinesAndSCHNAPPHeaders(licenseText);
 
         try {
-            final byte[] armoredPgp = BaseEncoding.base64().decode(licenseText);
+            final byte[] armoredPgp = BaseEncoding.base64().decode(cleanLicenseText);
 
             final ArmoredInputStream in = new ArmoredInputStream(new ByteArrayInputStream(armoredPgp));
 
