@@ -116,15 +116,13 @@ public class LicenseHelper {
 
         processLine(sig, lineOut.toByteArray());
 
-        if (lookAhead != -1) {
-            do {
-                lookAhead = readInputLine(lineOut, lookAhead, sigIn);
+        while (lookAhead != -1) {
+            lookAhead = readInputLine(lineOut, lookAhead, sigIn);
 
-                sig.update((byte) '\r');
-                sig.update((byte) '\n');
+            sig.update((byte) '\r');
+            sig.update((byte) '\n');
 
-                processLine(sig, lineOut.toByteArray());
-            } while (lookAhead != -1);
+            processLine(sig, lineOut.toByteArray());
         }
 
         if (!sig.verify()) {
